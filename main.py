@@ -89,7 +89,8 @@ class HopfieldNetwork:
             h = np.dot(np.array(mu_lista), self.patterns[:, i])
             new_state = np.sign(h)
             states[i] = new_state
-        return states
+        self.states = states
+        return self.states
 
     def compute_next_state_1(self):
         """
@@ -126,5 +127,4 @@ if __name__ == "__main__":
     print(patterns)
     weights = network.get_weight_matrix()
     print(weights)
-    print(network.compute_next_state_fast())
     print(network.compute_next_state_1())
