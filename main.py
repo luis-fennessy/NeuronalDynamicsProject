@@ -18,7 +18,7 @@ class HopfieldNetwork:
         self.P = P  # Number of patterns
         self.patterns = np.zeros((self.P, self.N), dtype=int)
         self.states = np.random.choice([-1, 1], size=self.N)
-        self.overlaps = np.zeros(self.P,dtype=float)
+        self.overlaps = [0] * self.P
 
         self.generate_balanced_patterns()
         self.compute_overlap()
@@ -56,9 +56,10 @@ class HopfieldNetwork:
 
     def compute_overlap(self) -> list:
         ##complexity N*P
-        for i in range(self.patterns.shape[0]):
+
+        for i in range(self.P):
             overlap = 0
-            for j in range(len(self.states)):
+            for j in range(self.N):
                 overlap += self.patterns[i][j] * self.states[j]
             self.overlaps[i] = (1 / len(self.patterns)) * overlap
         
@@ -81,7 +82,7 @@ class HopfieldNetwork:
         self.states = h
         return self.states
 
-    def compute_next_state_fast(self) -> np.ndarray:
+    def compute_next_state_fast(self):
         """
         Ex0.3
         The complexity O(N*P + N*P) --> N*P to calculte the overlap array + N*P to calculate the next state
@@ -90,10 +91,11 @@ class HopfieldNetwork:
         N = len(self.states)
         for i in range(len(self.states)):
             h = np.dot(np.array(self.overlaps), self.patterns[:, i])
-            new_state = np.sign(h)
+            new_state = np.where(h == 0, 1, np.sign(h))
             states[i] = new_state
         self.states = states
         self.overlaps = self.compute_overlap()
+        
         return self.states
 
     def compute_next_state_1(self):
@@ -122,13 +124,11 @@ class HopfieldNetwork:
         return self.states
 
 
-if __name__ == "__main__":
-    N, P = 20, 2
+# if __name__ == "__main__":
+#     N, P = 20, 2
 
-    network = HopfieldNetwork(N, P)
-    print(network.states)
-    patterns = network.generate_balanced_patterns()
-    print(patterns)
-    weights = network.get_weight_matrix()
-    print(weights)
-    print(network.compute_next_state_1())
+#     network = HopfieldNetwork(N, P)
+#     print(network.states)
+#     weights = network.get_weight_matrix()
+#     print(network.compute_next_state_fast())
+#     print(network.compute_next_state_1())
