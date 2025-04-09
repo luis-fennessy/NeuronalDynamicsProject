@@ -18,6 +18,10 @@ class HopfieldNetwork:
         self.P = P  # Number of patterns
         self.patterns = np.zeros((self.P, self.N), dtype=int)
         self.states = np.random.choice([-1, 1], size=self.N)
+        self.overlaps = np.zeros(self.P,dtype=float)
+
+        self.generate_balanced_patterns()
+        self.compute_overlap()
 
     def generate_balanced_patterns(self):
         """
@@ -50,15 +54,15 @@ class HopfieldNetwork:
 
         return W
 
-    def compute_overlap(self) -> int:
+    def compute_overlap(self) -> list:
         ##complexity N*P
-        overlaps = [0] * self.patterns.shape[0]
         for i in range(self.patterns.shape[0]):
             overlap = 0
             for j in range(len(self.states)):
                 overlap += self.patterns[i][j] * self.states[j]
-            overlaps[i] = (1 / len(self.patterns)) * overlap
-        return overlaps
+            self.overlaps[i] = (1 / len(self.patterns)) * overlap
+        
+        return self.overlaps
 
     def compute_next_state(self) -> list:
         """
@@ -77,19 +81,19 @@ class HopfieldNetwork:
         self.states = h
         return self.states
 
-    def compute_next_state_1_eloise(self) -> list:
+    def compute_next_state_fast(self) -> np.ndarray:
         """
         Ex0.3
         The complexity O(N*P + N*P) --> N*P to calculte the overlap array + N*P to calculate the next state
         """
         states = np.zeros(self.N, dtype=float)
         N = len(self.states)
-        mu_lista = self.compute_overlap()
         for i in range(len(self.states)):
-            h = np.dot(np.array(mu_lista), self.patterns[:, i])
+            h = np.dot(np.array(self.overlaps), self.patterns[:, i])
             new_state = np.sign(h)
             states[i] = new_state
         self.states = states
+        self.overlaps = self.compute_overlap()
         return self.states
 
     def compute_next_state_1(self):
