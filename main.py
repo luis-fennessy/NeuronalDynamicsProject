@@ -17,11 +17,20 @@ class HopfieldNetwork:
         self.N = N  # Number of neurons
         self.P = P  # Number of patterns
         self.patterns = np.zeros((self.P, self.N), dtype=int)
-        self.states = np.random.choice([-1, 1], size=self.N)
+        self.states = np.random.choice([-1., 1.], size=self.N)
         self.overlaps = [0] * self.P
 
         self.generate_balanced_patterns()
         self.compute_overlap()
+    
+    def set_states(self,states):
+        self.states = states
+
+    def set_patterns(self,patterns):
+        self.patterns = patterns
+
+    def set_overlaps(self,overlaps):
+        self.overlaps = overlaps
 
     def generate_balanced_patterns(self):
         """
@@ -33,7 +42,7 @@ class HopfieldNetwork:
 
         for mu in range(self.P):
             # mu represents the index of the pattern amongst P patterns
-            pattern = np.array([1] * (self.N // 2) + [-1] * (self.N // 2))
+            pattern = np.array([1.] * (self.N // 2) + [-1.] * (self.N // 2))
             np.random.shuffle(pattern)
             self.patterns[mu] = pattern
 
@@ -56,13 +65,14 @@ class HopfieldNetwork:
 
     def compute_overlap(self) -> list:
         ##complexity N*P
-
+        overlaps = [0] * self.P
         for i in range(self.P):
             overlap = 0
             for j in range(self.N):
                 overlap += self.patterns[i][j] * self.states[j]
-            self.overlaps[i] = (1 / len(self.patterns)) * overlap
+            overlaps[i] = (1 / len(self.states)) * overlap
         
+        self.overlaps = overlaps
         return self.overlaps
 
     def compute_next_state(self) -> list:
@@ -83,7 +93,7 @@ class HopfieldNetwork:
         return self.states
 
     def compute_next_state_fast(self):
-        """
+        """M
         Ex0.3
         The complexity O(N*P + N*P) --> N*P to calculte the overlap array + N*P to calculate the next state
         """
@@ -95,7 +105,7 @@ class HopfieldNetwork:
             states[i] = new_state
         self.states = states
         self.overlaps = self.compute_overlap()
-        
+
         return self.states
 
     def compute_next_state_1(self):
@@ -125,10 +135,15 @@ class HopfieldNetwork:
 
 
 # if __name__ == "__main__":
-#     N, P = 20, 2
+#     N, P = 30, 1
 
 #     network = HopfieldNetwork(N, P)
 #     print(network.states)
+#     print(network.patterns)
 #     weights = network.get_weight_matrix()
-#     print(network.compute_next_state_fast())
+#     print("---------------------------------------")
 #     print(network.compute_next_state_1())
+#     print(network.compute_next_state_1())
+#     print(network.compute_next_state_1())
+#     print("----------------------------------")
+#     print(network.patterns)
