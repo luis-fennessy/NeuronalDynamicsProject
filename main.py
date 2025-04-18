@@ -13,15 +13,32 @@ class HopfieldNetwork:
     Class from which we derive the methods required for creating, inferencing and training a Hopfield Network
     """
 
-    def __init__(self, N, P):
+    def __init__(self, N, P, K=None):
         self.N = N  # Number of neurons
         self.P = P  # Number of patterns
         self.patterns = np.zeros((self.P, self.N), dtype=int)
         self.states = np.random.choice([-1., 1.], size=self.N)
         self.overlaps = [0] * self.P
+        self.dilution_mask = self.generate_dilution_mask(K)
 
         self.generate_balanced_patterns()
         self.compute_overlap()
+
+    def generate_dilution_mask(self,K):
+        if not K:
+            # the default K is None, the network is not diluted
+            return np.ones((self.N, self.N), dtype=int)
+        
+        C = np.zeros((self.N, self.N), dtype=int)
+
+        for i in range(self.N):
+            possible_indices = list(range(self.N))
+            possible_indices.remove(i)  # exclude self-connection
+            selected = np.random.choice(possible_indices, int(K), replace=False)
+            C[i, selected] = 1
+
+        return C
+        
     
     def set_states(self,states):
         self.states = states
@@ -63,7 +80,7 @@ class HopfieldNetwork:
 
         return W
 
-    def compute_overlap(self) -> list:
+    def compute_overlap(self, return_none=False) -> list:
         ##complexity N*P
         overlaps = [0] * self.P
         for i in range(self.P):
@@ -73,7 +90,8 @@ class HopfieldNetwork:
             overlaps[i] = (1 / len(self.states)) * overlap
         
         self.overlaps = overlaps
-        return self.overlaps
+        if not return_none:
+            return self.overlaps
 
     def compute_next_state(self) -> list:
         """
