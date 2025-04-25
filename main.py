@@ -21,6 +21,7 @@ class HopfieldNetwork:
         self.states = np.random.choice([-1., 1.], size=self.N)
         self.overlaps = [0] * self.P
         self.dilution_mask = self.generate_dilution_mask(K)
+        # self.is_in_refractory = np.zeros(self.N, dtype=int)
 
         self.generate_balanced_patterns()
         self.compute_overlap()
