@@ -1,6 +1,7 @@
 # ----------------------- Imports. ----------------------------
 
 import numpy as np
+from math import atan
 
 # ----------------------- Ex 0. ----------------------------
 
@@ -80,7 +81,7 @@ class HopfieldNetwork:
 
         return W
 
-    def compute_overlap(self, return_none=False) -> list:
+    def compute_overlap(self, return_none=False, ex3=False) -> list:
         ##complexity N*P
         overlaps = [0] * self.P
         for i in range(self.P):
@@ -88,10 +89,32 @@ class HopfieldNetwork:
             for j in range(self.N):
                 overlap += self.patterns[i][j] * self.states[j]
             overlaps[i] = (1 / len(self.states)) * overlap
+            if ex3:
+                # as per note in Ex3.1
+                overlaps[i] *= 2
         
         self.overlaps = overlaps
         if not return_none:
             return self.overlaps
+
+    def compute_next_state_ex3(self, beta):
+        """
+        for exercise 3, calculate the firing probability from which we generate the next state
+        """
+        states = np.zeros(self.N, dtype=float)
+
+        for i in range(self.N):
+            # divide h_i by 2 as per Note 2 under Ex3.1
+            h_i = np.dot(np.array(self.overlaps), self.patterns[:, i]) / 2
+            Ph_i = 0.5 * (1 + atan(beta * h_i))
+
+            # use random uniform dist to get state. If P(h_i) is high, random float is more likely less than it => state more likely = 1
+            new_state = np.where(np.random.uniform(0,1,1) < Ph_i, 1, 0)
+            states[i] = new_state
+
+        self.states = states
+        self.overlaps = self.compute_overlap(ex3=True)
+        return self.states
 
     def compute_next_state(self) -> list:
         """
@@ -111,12 +134,12 @@ class HopfieldNetwork:
         return self.states
 
     def compute_next_state_fast(self):
-        """M
+        """
         Ex0.3
         The complexity O(N*P + N*P) --> N*P to calculte the overlap array + N*P to calculate the next state
         """
         states = np.zeros(self.N, dtype=float)
-        N = len(self.states)
+
         for i in range(len(self.states)):
             h = np.dot(np.array(self.overlaps), self.patterns[:, i])
             new_state = np.where(h == 0, 1, np.sign(h))
