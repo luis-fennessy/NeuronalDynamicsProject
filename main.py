@@ -21,7 +21,6 @@ class HopfieldNetwork:
         self.states = np.random.choice([-1., 1.], size=self.N)
         self.overlaps = [0] * self.P
         self.dilution_mask = self.generate_dilution_mask(K)
-        # self.is_in_refractory = np.zeros(self.N, dtype=int)
 
         self.generate_balanced_patterns()
         self.compute_overlap()
@@ -98,7 +97,7 @@ class HopfieldNetwork:
         if not return_none:
             return self.overlaps
 
-    def compute_next_state_ex3(self, beta):
+    def compute_next_state_ex3(self, beta, implement_refractory=False):
         """
         for exercise 3, calculate the firing probability from which we generate the next state
         """
@@ -110,7 +109,8 @@ class HopfieldNetwork:
             Ph_i = 0.5 * (1 + atan(beta * h_i))
 
             # use random uniform dist to get state. If P(h_i) is high, random float is more likely less than it => state more likely = 1
-            new_state = np.where(np.random.uniform(0,1,1) < Ph_i, 1, 0)
+            # refractory implemented below
+            new_state = np.where((np.random.uniform(0, 1, 1) < Ph_i) & ((states[i] == 0) | (~implement_refractory)), 1, 0)
             states[i] = new_state
 
         self.states = states
