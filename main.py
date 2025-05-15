@@ -133,6 +133,24 @@ class HopfieldNetwork:
 
         self.states = h
         return self.states
+    
+    def compute_next_state_sparse(self) -> list:
+        """
+        Ex.2.2
+        Using an adjusted weight matrix where there is 0 for weights between non-connnected neurons
+        """
+        curr_state = self.states.copy()
+        curr_weights = self.get_weight_matrix()
+        curr_weights = curr_weights * self.dilution_mask
+        h = np.zeros(self.N, dtype=float)
+
+        for i in range(self.N):
+            h_i = np.dot(curr_weights[i], curr_state.T)
+            new_state = np.sign(h_i)
+            h[i] = new_state
+
+        self.states = h
+        return self.states
 
     def compute_next_state_fast(self):
         """
