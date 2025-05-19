@@ -39,7 +39,6 @@ class HopfieldNetwork:
             C[i, selected] = 1
 
         return C
-        
     
     def set_states(self,states):
         self.states = states
@@ -150,6 +149,8 @@ class HopfieldNetwork:
             h[i] = new_state
 
         self.states = h
+        self.overlaps = self.compute_overlap()
+        
         return self.states
 
     def compute_next_state_fast(self):
