@@ -103,13 +103,13 @@ class HopfieldNetwork:
         states = np.zeros(self.N, dtype=float)
 
         for i in range(self.N):
-            # divide h_i by 2 as per Note 2 under Ex3.1
+            # divide h_i by 2 as per Note 1 under Ex3.1
             h_i = np.dot(np.array(self.overlaps), self.patterns[:, i]) / 2
             Ph_i = 0.5 * (1 + atan(beta * h_i))
 
             # use random uniform dist to get state. If P(h_i) is high, random float is more likely less than it => state more likely = 1
             # refractory implemented below
-            new_state = np.where((np.random.uniform(0, 1, 1) < Ph_i) & ((states[i] == 0) | (~implement_refractory)), 1, 0)
+            new_state = np.where((np.random.uniform(0, 1, 1) < Ph_i) & ((self.states[i] == 0) | ( not implement_refractory)), 1, 0)
             states[i] = new_state
 
         self.states = states
